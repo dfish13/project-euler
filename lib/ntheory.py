@@ -21,6 +21,26 @@ def int_square_root(n):
 def is_perfect_square(n):
 	return int_square_root(n)**2 == n
 
+def sqrt_continued_fraction(n):
+	"""
+	list where first value is the integer part and the rest is the repeating portion
+	for example sqrt_continued_fraction(14) -> [3, 1, 2, 1, 6]
+	"""
+	ip = int_square_root(n)
+	conFrac = [ip]
+	if ip ** 2 == n:
+		return conFrac
+	num = 1
+	den = ip
+	while 1:
+		top = den + ip
+		bot = (n - den * den) // num
+		y = top // bot
+		conFrac.append(y)
+		num = bot
+		den = - (den - bot * y)
+		if num == 1 and den == ip:
+			return conFrac
 
 
 

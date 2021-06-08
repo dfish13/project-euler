@@ -7,19 +7,19 @@ N = 23
 
 
 def conFrac(n):
-    ip = math.floor(n**0.5)
-    if ip*ip == n:
+    ip = math.floor(n ** 0.5)
+    if ip * ip == n:
         return 0
     num = 1
     den = ip
     i = 0
     while 1:
         top = den + ip
-        bot = (n - den*den)//num
-        y = top//bot
+        bot = (n - den * den) // num
+        y = top // bot
         i += 1
         num = bot
-        den = - (den - bot*y)
+        den = - (den - bot * y)
         if num == 1 and den == ip:
             return i
 
