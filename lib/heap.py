@@ -2,11 +2,20 @@
 
 import unittest
 
+class Heap:
+
+  def __init__(self, L, comparator):
+    pass
+
 class MaxHeap:
   """
   Converts list to a heap in place.
   Beware, the class does not make a copy of the list!
   """
+
+  def __len__(self):
+    return len(self.L)
+
   def __init__(self, L, key=None):
     self.L = L
     self.heapify()
@@ -30,6 +39,19 @@ class MaxHeap:
       else:
         return
   
+  def percolate_up(self, i):
+    while i > 0:
+      parent = (i - 1) // 2
+      if self.L[i] > self.L[parent]:
+        self.L[i], self.L[parent] = self.L[parent], self.L[i]
+      else:
+        break
+      i = parent
+      
+  def push(self, val):
+    self.L.append(val)
+    self.percolate_up(len(self.L) - 1)
+
   def pop(self):
     self.L[0] = self.L[-1]
     self.L.pop()
@@ -52,9 +74,15 @@ class TestMethods(unittest.TestCase):
   def test_heap_get_max(self):
     L = [3, 2, 3, 1, 2, 4, 5, 5, 6]
     H = MaxHeap(L)
+    
     self.assertEqual(H.get_max(), 6)
     H.pop()
     self.assertEqual(H.get_max(), 5)
+
+  def test_len(self):
+    L = [3, 2, 3, 1, 2, 4, 5, 5, 6]
+    H = MaxHeap(L)
+    self.assertEqual(len(L), len(H))
 
 if __name__ == '__main__':
 	unittest.main()
