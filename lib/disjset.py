@@ -30,8 +30,12 @@ class DisjSet:
     r1, r2 = (r1, r2) if self.A[r1] < self.A[r2] else (r2, r1)
     self.A[r1] += self.A[r2]
     self.A[r2] = r1
+  
   def numSets(self):
     return sum((x < 0) for x in self.A)
+
+  def connected(self, x, y):
+    return self.find(x) == self.find(y)
 
 class TestMethods(unittest.TestCase):
 

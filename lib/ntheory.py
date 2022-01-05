@@ -4,6 +4,10 @@ import unittest
 
 
 def int_square_root(n):
+	"""
+	Returns the integer square root of n, i.e. the number g
+	s.t.  g^2 <= n < (g+1)^2
+	"""
 	if n < 0:
 		raise ValueError()
 	g = n // 2
@@ -42,6 +46,19 @@ def sqrt_continued_fraction(n):
 		if num == 1 and den == ip:
 			return conFrac
 
+def combinations(l, n):
+	if n == 0:
+		yield []
+	prev = None
+	i = 0
+	while i < len(l):
+		prev = l[i]
+		for c in combinations(l[:i] + l[i + 1:], n - 1):
+			yield [l[i]] + c
+		i += 1
+
+
+
 
 
 class TestMethods(unittest.TestCase):
@@ -63,6 +80,10 @@ class TestMethods(unittest.TestCase):
 	def test_is_perfect_square(self):
 		self.assertTrue(is_perfect_square(169))
 		self.assertFalse(is_perfect_square(15))
+
+	def test_combinations(self):
+		C  = list(combinations([1, 1, 1, 2], 2))
+		self.assertEqual(len(C), 18)
 
 if __name__ == '__main__':
 	unittest.main()
