@@ -17,6 +17,8 @@ Example:
 import numpy as np
 from collections import defaultdict, deque
 import matplotlib.pyplot as plt
+from heapq import *
+import unittest
 
 
 def convert_to_canonical(edges, isolated_vertices=None):
@@ -125,9 +127,93 @@ class Graph:
           visited[a] = 1
 
     return None
-    
 
 
+class WGraph:
+  """
+  This class encapsulates a weighted graph and has some algorithms implemented to
+  do various things on a weighted graph like find the shortest path for example using
+  Djikstra's algorithm.
+
+  Vertices are integers in the range [0 .. n - 1].
+  """
+  def __init__(self, adj=None):
+    """
+    Takes in an adjacency list of edges and their corresponding weights. Assumes the input
+    is a directed graph i.e. if there is an edge (j, w) in adj[i] it does not mean there
+    is necessarily (i, w) in adj[j]. For an undirected graph using an adjacency list
+    representation this would be necessarily true.
+    """
+    self.adj = adj
+    self.n =  None if self.adj is None else len(self.adj)
+    self.source = -1
+    self.target = -1
+
+  def from_edge_list(self, edges, n, undirected=False):
+    self.adj = [[] for i in range(n)]
+    self.n = n
+    for u, v, w in edges:
+      self.adj[u].append((v, w))
+      if undirected:
+        self.adj[v].append((u, w))
+  
+  def shortest_path(self, u, v):
+    """
+    Returns a list representing one of the (possibly multiple) shortest paths from vertex u
+    to vertex v or None if there is no path.   
+    """
+    self.djikstra(u, v)
+    n = v
+    path = []
+    while n is not None:
+      path.append(n)
+      n = self.pred[n]
+    if len(path) > 1:
+      return path[::-1]
+    return None
+
+  def len_shortest_path(self, u, v):
+    self.djikstra(u, v)
+    return self.dist[v][0]
+
+  def num_shortest_path(self, u, v):
+    self.djikstra(u, v)
+    return self.dist[v][1]
+
+  def djikstra(self, u, v):
+    if (self.source, self.target) == (u, v):
+      """
+      Check if algo has been performed on source and target to avoid extra work. For
+      example if calls to shortest_path, num_shortest_path, and len_shortest_path are
+      made on the same source and target vertices they can all use the results of a single
+      execution of Djikstra's algorithm to compute their results.
+      """
+      return
+    self.source = u
+    self.target = v
+    self.pred = [None] * self.n
+    self.dist = [[float('inf'), 0] for i in range(self.n)]
+    self.dist[self.source] = [0, 1]
+
+    heap = [(0, self.source)]
+    while heap:
+      d, n = heappop(heap)
+      if d > self.dist[self.target][0]:
+        break
+      if d > self.dist[n][0]:
+        continue
+      for v, w in self.adj[n]:
+        pathLen = d + w
+        if pathLen > self.dist[v][0]:
+          continue
+        elif pathLen < self.dist[v][0]:
+          self.pred[v] = n
+          self.dist[v][0] = pathLen
+          self.dist[v][1] = self.dist[n][1]
+          heappush(heap, (pathLen, v))
+        else:
+          self.dist[v][1] += self.dist[n][1]
+       
 
 def gen_random_graph(n, e):
   return np.random.randint(n, size=(n, e))
@@ -145,28 +231,38 @@ def main():
     ['tie', 'jacket'],
     ['socks', 'shoes'],
   ]
-
+  
   (adj, d) = convert_to_canonical(clothes, isolated_vertices=['watch'])
   g = Graph(adj, len(d))
   top_sort = g.topological_sort()
   print([d[x] for x in top_sort])
 
-  N = 100
+  wg = WGraph()
+  wg.from_edge_list()
 
-  adj = gen_random_graph(N, 3)
-  g = Graph(adj)
-  p = np.random.randint(N, size=2)
+class TestWGraphMethods(unittest.TestCase):
 
-  print(adj)
-  print(p)
-  print(g.shortest_path(*p))
+  def test_shortest_path(self):
+    edges = [
+      (0, 4, 2),
+      (4, 6, 2),
+      (6, 1, 2),
+      (1, 3, 2),
+      (3, 9, 1),
+      (4, 5, 2),
+      (4, 7, 5),
+      (7, 2, 5),
+      (5, 2, 3),
+      (2, 6, 2),
+      (6, 8, 5),
+      (4, 1, 4)
+    ]
+    wg = WGraph()
+    wg.from_edge_list(edges, 10, undirected=True)
 
-  x = np.arange(0, 5, 0.1)
-  y = np.sin(x)
-  plt.plot(x, y)
-  plt.show()
-
-
+    self.assertEqual(wg.len_shortest_path(0, 9), 9)
+    self.assertEqual(wg.num_shortest_path(0, 9), 2)
+    self.assertEqual(wg.shortest_path(0, 2), [0, 4, 6, 2])
 
 if __name__ == '__main__':
-  main()
+  unittest.main()
