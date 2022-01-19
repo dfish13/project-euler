@@ -19,7 +19,7 @@ def int_square_root(n):
 			else:
 				g += j
 		else:
- 			g -= j
+			g -= j
 		j = j // 2 or 1 
 
 def is_perfect_square(n):

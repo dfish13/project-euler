@@ -2,10 +2,33 @@
 A Binary Search Tree class and a bunch of little functions doing some kind of binary
 search.
 
-Mostly just practice for learing the concepts of binary search.
+Mostly just practice for learning the concepts of binary search.
 """
 
 import unittest
+
+
+def find_closest(A, n):
+  """
+  Finds the element x in A for which abs(x - n) is minimized.
+  A should be non empty.
+  """
+  lo = 0
+  hi = len(A) - 1
+  ans = 0
+  dif = abs(A[ans] - n)
+  while lo <= hi:
+    mid = (lo + hi) // 2
+    if A[mid] < n:
+      lo = mid + 1
+    elif A[mid] > n:
+      hi = mid - 1
+    else:
+      return A[mid]
+    if abs(A[mid] - n) < dif:
+      ans = mid
+      dif = abs(A[ans] - n)
+  return A[ans]
 
 
 def approximate_sqrt(n, epsilon):
@@ -84,10 +107,11 @@ def bisect_left(a, x, lo=0, hi=None, key=None):
 
 class TreeNode():
 
-  def __init__(self, val=0, left=None, right=None):
+  def __init__(self, val=0, left=None, right=None, h=1):
     self.val = val
     self.left = left
     self.right = right
+    self.h = h
   
 class BST():
   """
@@ -137,6 +161,11 @@ class BST():
       return self._find(root.left)
     return root
 
+  def _h(self, n):
+    return (0 if n is None else n.h)
+  
+  def _bf(self, n):
+    return self._h(n.right) - self._h(n.left)
 
   def _insert(self, root, val):
     if val < root.val:
@@ -144,6 +173,7 @@ class BST():
         self._insert(root.left, val)
       else:
         root.left = TreeNode(val)
+        root.bf -= 1
     elif val > root.val:
       if root.right:
         self._insert(root.right, val)
@@ -191,6 +221,13 @@ class TestMethods(unittest.TestCase):
     self.assertEqual(integer_sqrt(170), 13)
     self.assertEqual(integer_sqrt(123456789), 11111)
     self.assertEqual(integer_sqrt(123454321), 11111)
+  
+  def test_find_closest(self):
+    A = [-39, -2, 3, 3, 4, 6, 9, 25, 30, 42, 42, 42, 60, 88]
+    self.assertEqual(find_closest(A, 7), 6)
+    self.assertEqual(find_closest(A, 25), 25)
+    self.assertEqual(find_closest(A, 100), 88)
+    self.assertIn(find_closest(A, 5), [4, 6])
 
 
 if __name__ == '__main__':
